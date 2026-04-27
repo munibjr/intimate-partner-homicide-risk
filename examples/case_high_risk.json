@@ -1,0 +1,40 @@
+{
+  "case_id": "EXAMPLE_HIGH_001",
+  "start_date": "2022-01-01T00:00:00",
+  "events": [
+    {
+      "date": "2022-01-16T00:00:00",
+      "type": "police_report",
+      "violence": true,
+      "severity": 3
+    },
+    {
+      "date": "2022-02-05T00:00:00",
+      "type": "threat",
+      "severity": 6,
+      "details": "Explicit threats recorded"
+    },
+    {
+      "date": "2022-03-02T00:00:00",
+      "type": "police_report",
+      "violence": true,
+      "severity": 5,
+      "details": "Escalated violence"
+    },
+    {
+      "date": "2022-03-27T00:00:00",
+      "type": "restraining_order_breach",
+      "details": "Violated order"
+    },
+    {
+      "date": "2022-04-21T00:00:00",
+      "type": "threat",
+      "severity": 8,
+      "weapon_mention": true,
+      "details": "Serious threat with weapon mention"
+    }
+  ],
+  "outcome": "synthetic_demo",
+  "risk_category": "high"
+}
+

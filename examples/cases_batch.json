@@ -1,0 +1,44 @@
+[
+  {
+    "case_id": "EXAMPLE_HIGH_001",
+    "start_date": "2022-01-01T00:00:00",
+    "events": [
+      {
+        "date": "2022-01-16T00:00:00",
+        "type": "police_report",
+        "violence": true,
+        "severity": 3
+      },
+      {
+        "date": "2022-02-05T00:00:00",
+        "type": "threat",
+        "severity": 6
+      },
+      {
+        "date": "2022-03-27T00:00:00",
+        "type": "restraining_order_breach"
+      }
+    ],
+    "risk_category": "high"
+  },
+  {
+    "case_id": "EXAMPLE_LOW_001",
+    "start_date": "2022-03-01T00:00:00",
+    "events": [
+      {
+        "date": "2022-03-11T00:00:00",
+        "type": "police_report",
+        "violence": false,
+        "severity": 1,
+        "details": "Isolated argument"
+      },
+      {
+        "date": "2022-03-31T00:00:00",
+        "type": "case_closed",
+        "details": "No further incidents"
+      }
+    ],
+    "risk_category": "low"
+  }
+]
+
