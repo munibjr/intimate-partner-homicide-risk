@@ -1,74 +1,107 @@
 # Intimate Partner Homicide Risk Assessment
 
-## Problem Statement
+Synthetic ML demo for identifying escalation patterns in fragmented intimate partner violence case histories.
 
-71% of Norwegian intimate partner homicides had prior registered partner violence.
+## What This Is
 
-Yet cases are often treated as isolated incidents. The system has the data but fails to connect the signals.
+- Decision-support demo for case prioritization
+- Pattern recognition on synthetic event histories
+- Explainable risk scoring with visible factors and human-review recommendations
+- A GitHub portfolio project, not an operational public-safety system
 
-## Solution
+## What This Is Not
 
-ML-powered escalation risk detection: identify dangerous patterns in fragmented case histories.
+- Not a prediction that a person will harm another person
+- Not an automatic action trigger
+- Not a guilt, innocence, arrest, or surveillance system
+- Not trained on real personal data
 
-**What this is:**
-- Decision support tool for case prioritization
-- Pattern recognition on existing data
-- Explainable risk scoring
-
-**What this is NOT:**
-- Automatic action trigger
-- Guilt/innocence determination
-- Predictive policing
+Every CLI and API prediction includes this disclaimer: synthetic demo only, decision support only, and human review required.
 
 ## Quick Start
 
 ```bash
-cat > METHODOLOGY.md << 'EOF'
-# Methodology
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pytest -q
+```
 
-## Research Foundation
+Run one prediction:
 
-**Norwegian Data:**
-- 71% of intimate partner homicides had prior registered partner violence
-- Cases fragmented across police, prosecutors, health, child welfare
-- System misses patterns due to siloed data
+```bash
+python -m src.cli.predict examples/case_high_risk.json --format json
+```
 
-## Approach
+Run batch prediction:
 
-### 1. Synthetic Data Generation
-- Create realistic case histories based on research patterns
-- 500 cases: 70% low-risk, 30% high-risk
-- Temporal dynamics (events over months/years)
+```bash
+python -m src.cli.batch_predict examples/cases_batch.json
+```
 
-### 2. Feature Engineering
-15 domain-expert features:
-- Violence escalation trajectory
-- Threat patterns
-- Isolation indicators
-- Restraining order breaches
-- Multi-agency interaction frequency
+Start the API:
 
-### 3. Ensemble Model
-- XGBoost + LightGBM (soft voting)
-- Class imbalance handling
-- 5-fold cross-validation
+```bash
+python -m src.api.app
+```
 
-### 4. Explainability
-- SHAP integration
-- Each prediction shows why
-- Interpretable output for police
+Try the API:
 
-### 5. Fairness Audit
-- Precision/recall by demographics
-- Bias detection and mitigation
+```bash
+curl http://127.0.0.1:5000/health
+curl -X POST http://127.0.0.1:5000/predict \
+  -H "Content-Type: application/json" \
+  -d @examples/case_high_risk.json
+```
 
-## Validation
+## Project Structure
 
-- Target: >0.85 AUC
-- Target: <5% demographic variance in precision
+```text
+src/data/            Synthetic cases and feature extraction
+src/models/          Ensemble model and shared prediction service
+src/cli/             Single and batch prediction CLIs
+src/api/             Flask REST API
+src/analysis/        Trend, trajectory, and pattern analysis
+src/evaluation/      Metrics and fairness audit helpers
+src/explainability/  SHAP explainer
+scripts/             Training and evaluation entry points
+examples/            Runnable demo inputs and examples
+docs/                API and deployment notes
+tests/               Unit and integration tests
+```
 
-## Limitations
+## Model Contract
 
-- Synthetic data (not real)
-- Norwegian-specific patterns
-- Requires human oversight
+The feature extractor returns 15 normalized, interpretable features plus `risk_label`.
+
+Important examples:
+
+- `violence_escalation_rate`
+- `threat_frequency`
+- `weapon_mention`
+- `restraining_order_breaches`
+- `multiple_agencies_involved`
+- `breach_of_protection`
+
+The demo model trains on generated synthetic cases at runtime and keeps the model in memory.
+
+## Development
+
+```bash
+pytest -q
+python scripts/train_model.py
+python scripts/evaluate_model.py
+```
+
+Optional API key protection for prediction endpoints:
+
+```bash
+export DEMO_API_KEY=local-demo-key
+python -m src.api.app
+```
+
+Then send `x-api-key: local-demo-key` on `/predict` and `/batch-predict`.
+
+## Ethics
+
+See [ETHICS.md](ETHICS.md). This project is intentionally framed as synthetic decision support with human oversight. The safe use case is prioritization, safety planning, and professional review in a demo or research setting.

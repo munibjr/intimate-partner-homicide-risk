@@ -1,0 +1,8 @@
+training:
+  n_cases: 500
+  high_risk_ratio: 0.3
+  seed: 42
+
+features:
+  reference_date: "2023-01-01"
+
