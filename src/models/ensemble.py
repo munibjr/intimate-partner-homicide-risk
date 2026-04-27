@@ -1,11 +1,20 @@
 """Ensemble model with XGBoost and LightGBM."""
 
+import os
+
+os.environ.setdefault("LOKY_MAX_CPU_COUNT", "4")
+
 import numpy as np
 from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
 from sklearn.ensemble import VotingClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold
-from typing import Tuple, Dict, Any
+from typing import Dict
+
+try:
+    from lightgbm import LGBMClassifier
+except ImportError:
+    LGBMClassifier = None
 
 
 class RiskEnsemble:
@@ -14,31 +23,38 @@ class RiskEnsemble:
     def __init__(self, random_state: int = 42):
         self.random_state = random_state
         
-        # XGBoost model
         self.xgb = XGBClassifier(
             max_depth=5,
             learning_rate=0.1,
             n_estimators=200,
             scale_pos_weight=2.3,  # Handle class imbalance
             random_state=random_state,
-            verbosity=0
+            verbosity=0,
+            eval_metric="logloss",
         )
-        
-        # LightGBM model
-        self.lgb = LGBMClassifier(
-            num_leaves=31,
-            learning_rate=0.05,
-            n_estimators=200,
-            class_weight='balanced',
-            random_state=random_state,
-            verbosity=-1
-        )
-        
-        # Ensemble
+
+        if LGBMClassifier is not None:
+            self.secondary_model = LGBMClassifier(
+                num_leaves=31,
+                learning_rate=0.05,
+                n_estimators=200,
+                class_weight='balanced',
+                random_state=random_state,
+                verbosity=-1
+            )
+            secondary_name = "lgb"
+        else:
+            self.secondary_model = HistGradientBoostingClassifier(
+                learning_rate=0.05,
+                max_iter=200,
+                random_state=random_state,
+            )
+            secondary_name = "sklearn_hgb"
+
         self.ensemble = VotingClassifier(
             estimators=[
                 ('xgb', self.xgb),
-                ('lgb', self.lgb),
+                (secondary_name, self.secondary_model),
             ],
             voting='soft',
             weights=[0.6, 0.4]  # XGB slightly higher weight
@@ -48,7 +64,6 @@ class RiskEnsemble:
     
     def fit(self, X_train: np.ndarray, y_train: np.ndarray) -> Dict[str, float]:
         """Train ensemble model."""
-        print("Training ensemble model...")
         self.ensemble.fit(X_train, y_train)
         self.is_trained = True
         

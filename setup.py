@@ -13,8 +13,10 @@ setup(
         "pandas",
         "scikit-learn",
         "xgboost",
-        "lightgbm",
         "shap",
         "matplotlib",
+        "flask",
+        "pydantic",
+        "pyyaml",
     ],
 )
